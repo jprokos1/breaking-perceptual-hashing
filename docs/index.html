@@ -7,24 +7,50 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding-left: 50px;
-        padding-right: 50px;
+        padding-left: 5%;
+        padding-right: 5%;
         margin-right: 0px;
         margin-left: 0px;
     }
     .figure {
-        width: auto;
-        height: auto;
-        margin-left: auto;
-        margin-right: auto;
         margin-bottom: 20px;
-        padding: 10px;
+        padding-top: 10px;
     }
     .pair {
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
+    }
+    .pair .figure:first-child {
+        padding-right: 5px;
+    }
+    .pair .figure:last-child {
+        padding-left: 5px;
+    }
+    .content h4 {
+        max-width: 820px;
+        padding-top: 20px;
+    }
+    .figure embed {
+        width: 100%;
+        height: auto;
+    }
+    .pair .figure {
+        width: 50%;
+        height: auto;
+    }
+
+    @media only screen and (min-width: 820px) {
+        #figures .pair .figure {
+            min-width: 820px;
+        }
+    }
+    @media only screen and (max-width: 820px) {
+        #figures .pair .figure {
+            width: 100%;
+        }
     }
 </style>
 <html>
@@ -42,29 +68,44 @@
         </div>
         <h3 style="margin-bottom: 1em">Additional figures and changes coming soon. In the meantime view our <a href="https://eprint.iacr.org/2021/1531.pdf">ePrint paper</a> (update coming).</h3>
         
-        <div class="content" style="margin-top: 25px;">
+        <h4>
+            Below you can find two gifs showing the progress of our attack over time when utilizing PhotoDNA (left) and PDQ (right) as the target perceptual hash function.
+        </h4>
+        <div class="pair">
+            <div class="figure">
+                <embed src="./images/pdna_0.0_0.gif" width="100%" height="100%" />
+            </div>
+            <div class="figure">
+                <embed src="./images/pdq_4.4_1.gif" width="100%" height="100%" />
+            </div>
+        </div>
+
+        <h4>
+            The following figures are pulled from our USENIX submission. These will be included in the soon to come ePrint update.
+        </h4>
+        <div class="content" id="figures">
             <div class="pair">
                 <div class="figure">
-                    <embed src="./images/targeted-second-preimage-collisions.png" width="100%" height="auto" />
+                    <embed src="./images/targeted-second-preimage-collisions.png" />
                 </div>
                 <div class="figure">
-                    <embed src="./images/baseline-threshold-graph.png" width="100%" height="auto" />
+                    <embed src="./images/baseline-threshold-graph.png" />
                 </div>
             </div>
             <div class="pair">
                 <div class="figure">
-                    <embed src="./images/pdna-best.png" width="100%" height="auto" />
+                    <embed src="./images/pdna-best.png" />
                 </div>
                 <div class="figure">
-                    <embed src="./images/pdq-best.png" width="100%" height="auto" />
+                    <embed src="./images/pdq-best.png" />
                 </div>
             </div>
             <div class="pair">
                 <div class="figure">
-                    <embed src="./images/pdna-attack-variants.png" width="100%" height="auto" />
+                    <embed src="./images/pdna-attack-variants.png" />
                 </div>
                 <div class="figure">
-                    <embed src="./images/pdq-attack-variants.png" width="100%" height="auto" />
+                    <embed src="./images/pdq-attack-variants.png" />
                 </div>
             </div>
         </div>
