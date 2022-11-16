@@ -33,6 +33,9 @@
         max-width: 820px;
         padding-top: 20px;
     }
+    .content h5 {
+        max-width: 820px;
+    }
     .figure embed {
         width: 100%;
         height: auto;
@@ -78,7 +81,7 @@
             Abstract
         </h3>
         <p>
-            Many online communications systems use perceptual hash matching systems to detect illicit files in user content. These systems employ specialized perceptual hash functions such as Microsoft's PhotoDNA or Facebook's PDQ to produce a compact digest of an image file that can be approximately compared to a database of known illicit-content digests. Recently, several proposals have suggested that hash-based matching systems be incorporated into <em>client-side</em> and end-to-end encrypted (E2EE) systems: in these designs, files that register as illicit content will be reported to the provider, while the remaining content will be sent confidentially. By using perceptual hashing to determine confidentiality guarantees, this new setting significantly changes the function of existing perceptual hashing - thus motivating the need to evaluate these functions from an adversarial perspective, using their perceptual capabilities against them. For example, an attacker may attempt to trigger a match on innocuous, but politicallycharged, content in an attempt to stifle speech. 
+            Many online communications systems use perceptual hash matching systems to detect illicit files in user content. These systems employ specialized perceptual hash functions such as Microsoft's PhotoDNA or Facebook's PDQ to produce a compact digest of an image file that can be approximately compared to a database of known illicit-content digests. Recently, several proposals have suggested that hash-based matching systems be incorporated into <em>client-side</em> and end-to-end encrypted (E2EE) systems: in these designs, files that register as illicit content will be reported to the provider, while the remaining content will be sent confidentially. By using perceptual hashing to determine confidentiality guarantees, this new setting significantly changes the function of existing perceptual hashing - thus motivating the need to evaluate these functions from an adversarial perspective, using their perceptual capabilities against them. For example, an attacker may attempt to trigger a match on innocuous, but politically-charged, content in an attempt to stifle speech. 
         </p>
         <p>
             In this work we develop threat models for perceptual hashing algorithms in an adversarial setting, and present attacks against the two most widely deployed algorithms: PhotoDNA and PDQ. Our results show that it is possible to efficiently generate <em>targeted second-preimage attacks</em> in which an attacker creates a variant of some source image that matches some target digest. As a complement to this main result, we also further investigate the production of images that facilitate <em>detection avoidance attacks</em>, continuing a recent investigation of Jain et al. Our work shows that existing perceptual hash functions are likely insufficiently robust to survive attacks on this new setting.
@@ -99,6 +102,9 @@
         <h4>
             The following figures are pulled from our USENIX submission. These will be included in the soon to come ePrint update.
         </h4>
+        <h5>
+            Figure 1 shows the results of our <em>targeted second-preimage attack</em> at both low and high threshold levels. Figure 2 shows our <em>detection avoidance attack</em> at the baseline collision threshold as well as at a significantly higher threshold. Figures 3 & 4 show the progress of our targeted second-preimage attack as the collision threshold is lowered. Figures 5 & 6 show a comparison of the performance of this attack using various gradient optimization methods.
+        </h5>
         <div class="content" id="figures">
             <div class="pair">
                 <div class="figure">
