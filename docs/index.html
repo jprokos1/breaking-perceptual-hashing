@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <style>
     .content {
-        width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -11,6 +10,7 @@
         padding-right: 5%;
         margin-right: 0px;
         margin-left: 0px;
+        font-size: medium;
     }
 
     .figure {
@@ -33,22 +33,27 @@
     .pair .figure:last-child {
         padding-left: 5px;
     }
-
+    
+    .content h3 {
+        text-align: center;
+        font-size: 24px;
+    }
+    
     .content h4 {
-        max-width: 820px;
         padding-top: 20px;
+        font-size: 20px;
     }
-
+    
     .content h5 {
-        max-width: 820px;
+        font-size: 16px;
     }
-
+    
     .figure embed {
         width: 100%;
         height: auto;
         image-rendering: pixelated;
     }
-
+    
     .pair .figure {
         width: 50%;
         height: auto;
@@ -69,6 +74,65 @@
         text-indent: 2em;
         max-width: 820px;
     }
+
+    .superscript-icon {
+        position: relative;
+        display: inline-block;
+    }
+
+    .superscript-icon::after {
+        position: absolute;
+        top: -0.5em;
+        /* Adjust this value for vertical positioning */
+        font-size: 0.8em;
+        /* Adjust this value for the size of the superscript */
+    }
+
+    .superscript-icon:hover::after {
+        background-color: #f0f0f0;
+        /* Add a background color on hover */
+        padding: 0.2em;
+        /* Add some padding for better visibility */
+        border-radius: 4px;
+        /* Add rounded corners to the tooltip */
+        font-size: 14px;
+        /* Adjust the font size of the tooltip text */
+        white-space: nowrap;
+        /* Prevent the tooltip from breaking into multiple lines */
+        display: inline-block;
+        /* Display the tooltip on the same line */
+        position: absolute;
+        top: -2.5em;
+        /* Adjust this value to position the tooltip */
+        left: 0;
+        z-index: 1;
+    }
+    .superscript-icon.twosix:hover::after {
+        content: "Two Six Technologies";
+    }
+    .superscript-icon.apl:hover::after {
+        content: "Johns Hopkins University Applied Physics Laboratory";
+    }
+    .superscript-icon.post-jhu:hover::after {
+        content: "Previously Johns Hopkins University";
+    }
+    .superscript-icon.jhu:hover::after {
+        content: "Johns Hopkins University";
+    }
+    .superscript-icon.vector-institute:hover::after {
+        content: "Vector Institute";
+    }
+    .superscript-icon.tel-aviv:hover::after {
+        content: "Tel Aviv University";
+    }
+    .superscript-icon.columbia:hover::after {
+        content: "Columbia University";
+    }
+    .superscript-icon.city-ny:hover::after {
+        content: "City College of New York";
+    }
+
+
 </style>
 <html>
 
@@ -85,18 +149,56 @@
         <div class="page-header">
             <h1>Breaking Perceptual Hashing</h1>
         </div>
-        <!-- <h3 style="margin-bottom: 1em">Additional figures and <a
-                href="https://github.com/users/jprokos1/projects/2">changes coming soon</a>. In the meantime view our <a
-                href="https://www.usenix.org/conference/usenixsecurity23/presentation/prokos">USENX paper</a> or
-            associated <a href="#gslides">slides</a>. There are additional results in our <a
-                href="https://eprint.iacr.org/2021/1531.pdf">ePrint archive</a> not included elsewhere.</h3>
+        <h3>Based on work presented in <a
+                href="https://www.usenix.org/conference/usenixsecurity23/presentation/prokos"><img
+                    src="https://www.usenix.org/favicon.ico" style="height: 1em">Squint Hard Enough: <br>Attacking
+                Perceptual Hashing with Adversarial Machine Learning</a></h3>
+        <!-- *, †, ‡, §, ‖, ¶, ◊, -->
+        <h4 style="text-align: center;">Authored by 
+            <a href="https://www.ugrad.cs.jhu.edu/~jprokos1/">Jonathan
+                Prokos</a><span class="superscript-icon twosix"><sup>*</sup></span><span class="superscript-icon post-jhu"><sup>‡</sup></span>, 
+            Neil Fendley<span class="superscript-icon apl"><sup>†</sup></span>, 
+            Matthew Green<span class="superscript-icon jhu"><sup>‡</sup></span>,
+            <br>
+            Roei Schuster<span class="superscript-icon vector-institute"><sup>§</sup></span>,
+            Eran Tromer<span class="superscript-icon tel-aviv"><sup>‖</sup></span><span class="superscript-icon columbia"><sup>◊</sup></span>,
+            Tushar Jois<span class="superscript-icon city-ny"><sup>¶</sup></span><span class="superscript-icon post-jhu"><sup>‡</sup></span>,
+            Yinzhi Cao<span class="superscript-icon jhu"><sup>‡</sup></span>
+        </h4>
+
+        <h6 style="text-align: center;">
+            <sup>*</sup>Two Six Technologies,
+            <sup>†</sup>Johns Hopkins University Applied Physics Laboratory,<br>
+            <sup>‡</sup>Johns Hopkins University,
+            <sup>§</sup>Vector Institute,
+            <sup>‖</sup>Tel Aviv University,
+            <sup>◊</sup>Columbia University,
+            <sup>¶</sup>City College of New York
+        </h6>
+
+        <!-- <h3 style="margin-bottom: 1em">Additional figures and <a href="https://github.com/users/jprokos1/projects/2">changes coming soon</a>. In the meantime view our <a href="https://www.usenix.org/conference/usenixsecurity23/presentation/prokos">USENX paper</a> or associated <a href="#gslides">slides</a>. There are additional results in our <a href="https://eprint.iacr.org/2021/1531.pdf">ePrint archive</a> not included elsewhere.</h3>
         <h4 style="max-width: 90%; padding-top: 0px;">
-            In addition to including figures which are not found in our paper, this site will provide an interactive
-            demo of our attack along with the majority of our code. For ethical considerations, we will not be releasing
-            our entire attack code.
+            In addition to including figures which are not found in our paper, this site will provide an interactive demo of our attack along with the majority of our code. For ethical considerations, we will not be releasing our entire attack code.
         </h4> -->
         <hr>
+        <p>
+            <span style="font-size: xx-large; line-height: 1">tldr;</span>
+            End-to-end (e2e) encrypted messaging systems are becoming increasingly popular. 
+            Perceptual hashing is being used to detect illicit content in these systems.
+            We show perceptual hashing is vulnerable to adversarial attacks, introducing a side-channel in these e2e systems.
+        </p>
+        <hr>
         <h3>
+            Perceptual hashing?
+        </h3>
+        <p>
+            To start, a <a href="https://en.wikipedia.org/wiki/Hash_function">hash function</a> is a function that takes an arbitrary input of and produces an output of a 
+            fixed length.
+            This is useful for compressing data or verifying its integrity.
+            Most people are familiar with cryptographic hash functions such as <a href="https://en.wikipedia.org/wiki/SHA-256">SHA-256</a> or <a href="https://en.wikipedia.org/wiki/MD5">MD5</a>. Cryptographic hash functions are <em>one-way functions</em> meaning that it is computationally infeasible to find an input that produces a given output. Additionally, these algorithms are designed to be <em>collision resistant</em> meaning that it is computationally infeasible to find two inputs that produce the same output. Perceptual hash functions share neither of these properties.
+        </p>
+
+        <!-- <h3>
             Abstract
         </h3>
         <p>
@@ -120,7 +222,7 @@
             further investigate the production of images that facilitate <em>detection avoidance attacks</em>,
             continuing a recent investigation of Jain et al. Our work shows that existing perceptual hash functions are
             likely insufficiently robust to survive attacks on this new setting.
-        </p>
+        </p> -->
         <hr style="max-width: 820px;">
         <h4>
             Below you can find two gifs showing the progress of our attack over time when utilizing PhotoDNA or PDQ as
