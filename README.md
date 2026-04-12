@@ -1,3 +1,3 @@
 # Squint Hard Enough: Attacking Perceptual Hashing with Adversarial Machine Learning
 
-[perceptualhashing.lol](perceptualhashing.lol)
+[perceptualhashing.lol](https://www.perceptualhashing.lol)
