@@ -19,7 +19,7 @@
         <h2>Based on work presented in <a
                 href="https://www.usenix.org/conference/usenixsecurity23/presentation/prokos"><img
                     src="https://www.usenix.org/favicon.ico" style="height: 1em">Squint Hard Enough: <br>Attacking
-                Perceptual Hashing with Adversarial Machine Learning</a></h3>
+                Perceptual Hashing with Adversarial Machine Learning</a></h2>
             <!-- *, †, ‡, §, ‖, ¶, ◊, -->
             <h4 style="text-align: center;">Authored by
                 <a href="https://www.ugrad.cs.jhu.edu/~jprokos1/">Jonathan
@@ -46,10 +46,6 @@
                 <sup>¶</sup>City College of New York
             </h6>
 
-            <!-- <h3 style="margin-bottom: 1em">Additional figures and <a href="https://github.com/users/jprokos1/projects/2">changes coming soon</a>. In the meantime view our <a href="https://www.usenix.org/conference/usenixsecurity23/presentation/prokos">USENX paper</a> or associated <a href="#gslides">slides</a>. There are additional results in our <a href="https://eprint.iacr.org/2021/1531.pdf">ePrint archive</a> not included elsewhere.</h3>
-        <h4 style="max-width: 90%; padding-top: 0px;">
-            In addition to including figures which are not found in our paper, this site will provide an interactive demo of our attack along with the majority of our code. For ethical considerations, we will not be releasing our entire attack code.
-        </h4> -->
             <hr>
             USENIX Security 2023 Presentation
             <iframe width="560" height="315" src="https://www.youtube.com/embed/v1xeIHyTg-c?si=ebOJl8dwRjGd7vCQ"
@@ -65,14 +61,13 @@
                 However, we show perceptual hashing is vulnerable to adversarial attacks, introducing a side-channel in
                 these e2e systems.
             </p>
+
+            <!-- ============================================================ -->
             <hr>
-            <h3>
-                What is Perceptual Hashing?
-            </h3>
+            <h3>What is Perceptual Hashing?</h3>
             <p>
                 To start, a <a href="https://en.wikipedia.org/wiki/Hash_function">hash function</a> is a function that
-                takes arbitrary input and produces an output of a
-                fixed length.
+                takes arbitrary input and produces an output of a fixed length.
                 This is useful for compressing data or verifying its integrity.
                 Most people are familiar with cryptographic hash functions such as <a
                     href="https://en.wikipedia.org/wiki/SHA-256">SHA-256</a> or <a
@@ -84,9 +79,9 @@
             </p>
             <p>
                 Although we show that perceptual hash functions are vulnerable to adversarial attacks, they are still
-                useful for their intended purpose. The perceptual part of the name alludes to its design to embed image
-                semantics into the resultant digest. This allows the hash to be locality sensitive. To understand what
-                this means, observe the example below:
+                useful for their intended purpose. The <em>perceptual</em> part of the name alludes to its design to embed image
+                semantics into the resultant digest. This allows the hash to be <em>locality sensitive</em> —
+                sometimes also called <em>fuzzy hashing</em>. To understand what this means, observe the example below:
             </p>
             <span class="figure">
                 <img src="images/what-is-phf.svg">
@@ -97,79 +92,430 @@
                         href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">Cryptographic Hash Function</a>
                 </div>
             </span>
-
             <p>
                 The table above shows the input (top) and output (table content) for two types of hash functions (left).
                 The input is a set of cat images where <span class="fira">cat1'</span> is an occluded version of <span
-                    class="fira">cat1</span> with a red square placed ontop using ms paint.
+                    class="fira">cat1</span> with a red square placed on top.
             </p>
             <p>
                 As perceptual hash functions are designed to be locality sensitive, the red square does not affect its
-                output much as it is not semantically important. However, the cryptographic hash function is not
-                locality sensitive and thus the red square affects its output significantly. This is the key property of
-                perceptual hash functions that makes them useful for lots of applications.
+                output much — it is not semantically important. The PHF produces a digest which remains largely
+                the same when we make a small change to the input, while still producing a very different digest
+                when comparing two semantically different images entirely. The cryptographic hash function, by
+                contrast, is not locality sensitive and so even the red square significantly changes its output.
+                This locality sensitivity is the key property of perceptual hash functions that makes them useful
+                for content scanning: the same image re-encoded, slightly cropped, or lightly edited will still
+                produce a very similar hash.
             </p>
 
+            <!-- ============================================================ -->
             <hr>
-            <h3>How are PHFs used?</h3>
+            <h3>How are PHFs Used?</h3>
             <p>
-                Cryptographic hash functions - such as SHA-256 shown above - have lots of applications in privacy and
-                security. However,
-            </p>
-            <img src="images/how-is-phf-used.svg">
-            <p>
-                Imagine the scenario above; client A wants to send an image to client B using some provider (Facebook in
-                this example). Before sending this content across its network, the provider will first check the image
-                for illicit content.
+                Perceptual hash matching has been deployed at enormous scale across the internet. YouTube
+                introduced Content ID in 2007 for copyright infringement detection. Microsoft's PhotoDNA was
+                integrated into Bing and SkyDrive in 2009, followed by Twitter in 2011 and Google in 2016.
+                Facebook deployed PDQ and TMK+PDQF in 2019. These systems collectively scan billions of images
+                per year. A 2018 study found that 1,348 ISIS recruitment videos could be matched from just 229
+                known examples — demonstrating the practical effectiveness of the approach at scale.
             </p>
             <p>
-                The provider receives the image from client A and computes its perceptual hash. This hash is compared to
-                a database of known illicit hashes; if a match is found, the provider will not send the image to client
-                B. Otherwise, if no match is found the provider will send the image to client B.
+                Suppose client A wants to send an image to client B using Facebook Messenger. Before forwarding
+                that content, the provider performs a content check:
+            </p>
+            <img src="images/how-is-phf-used.svg" style="max-width: 820px;">
+            <p>
+                Facebook receives the image from client A and computes its perceptual hash. This hash is compared
+                to a database of known illicit hashes — obtained from organizations such as the National Center for
+                Missing and Exploited Children (NCMEC). This database does not come from either client and is used
+                to filter content such as Child Sexual Abuse Material (CSAM) and non-consensual pornography. If
+                the hash matches a known illicit digest, the image is blocked. Otherwise, it is forwarded to
+                client B.
             </p>
             <p>
-                This setup works well for detecting known illicit content, but what if we want to capture
-                <em>unknown</em> illicit content? To achieve this, providers utilize neural networks to classify any
-                arbitrary image as illicit before sending it along to client B.
+                This setup works well for detecting <em>known</em> illicit content. But what about
+                <em>unknown</em> illicit content — images that are genuinely harmful but have never been seen
+                before? For this, providers such as Google or Apple can run the image through a neural network
+                classifier before forwarding it. The neural network learns to recognize illicit content from
+                examples and can flag novel material that doesn't match any existing hash.
+            </p>
+            <span class="figure">
+                <img src="images/neural-network-diagram.png" style="max-width: 500px;">
+                <div style="font-size: x-small; margin-top: 6px;">A neural network classifier used to
+                    flag unknown illicit content. Input pixels pass through hidden layers to produce a
+                    classification output.</div>
+            </span>
+            <p>
+                So where is the problem? Both of these approaches — hash matching and neural network classification —
+                require the provider to see the plaintext image. This works fine in a traditional messaging system,
+                but breaks down the moment we introduce end-to-end encryption.
             </p>
 
+            <!-- ============================================================ -->
+            <hr>
+            <h3>The End-to-End Encryption Problem</h3>
             <p>
-                More updates coming soon...
+                In an <em>end-to-end encrypted</em> (E2EE) messaging system, only the sender and recipient can
+                read the message. The provider's servers see only ciphertext — scrambled data they cannot
+                inspect. This is excellent for user privacy, but it eliminates the provider's ability to perform
+                any content scanning.
+            </p>
+            <span class="figure">
+                <img src="images/e2e-breaks-checking.svg" style="max-width: 820px; width: 100%;">
+                <div style="font-size: x-small; margin-top: 4px;">With E2EE, the provider cannot inspect the image — the hash function is never applied, and illicit content passes through undetected.</div>
+            </span>
+            <p>
+                This tension became a matter of public policy in 2019, when U.S. Attorney General William Barr,
+                joined by senior officials from the UK, Australia, and the U.S. Department of Homeland Security,
+                sent an open letter directly to Facebook. The letter urged the company to delay its plans to
+                deploy end-to-end encryption across its platforms, citing fears that doing so would "severely erode"
+                the ability of law enforcement to detect CSAM and other serious crimes.
+            </p>
+            <div class="pair" style="align-items: flex-start; max-width: 820px;">
+                <div class="figure" style="flex: 1.5;">
+                    <img src="images/barr-letter-text.png" style="width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+                    <div style="font-size: x-small; margin-top: 4px; text-align: left;">Opening of the 2019 open letter to Facebook, signed by AG Barr and officials from the UK, Australia, and New Zealand.</div>
+                </div>
+                <div class="figure" style="flex: 1;">
+                    <img src="images/barr-letter-signatories.png" style="max-width: 320px; width: 100%;">
+                    <div style="font-size: x-small; margin-top: 4px;">Signatories of the 2019 open letter</div>
+                </div>
+            </div>
+            <div style="max-width: 820px; margin-bottom: 1em;">
+                <blockquote style="font-size: 0.9em; border-left: 3px solid #ccc; padding-left: 1em; text-align: left; font-style: italic; margin: 0;">
+                    "We are committed to working with you to focus on reasonable proposals that will allow
+                    Facebook and our governments to protect your users and the public, while protecting
+                    their privacy. Our technical experts are confident that we can do so while defending
+                    cyber security and supporting technological innovation..."
+                </blockquote>
+                <div style="font-size: x-small; text-align: left; padding-left: 1em; margin-top: 4px;">— Joint letter to Facebook, October 2019</div>
+            </div>
+            <p>
+                This political pressure spurred researchers and providers to explore ways of incorporating perceptual
+                hash matching into E2EE protocols — attempting to perform content scanning without the provider
+                ever seeing the plaintext content. Three main architectures emerged.
             </p>
 
-            <!-- <h3>
-            Abstract
-        </h3>
-        <p>
-            Many online communications systems use perceptual hash matching systems to detect illicit files in user
-            content. These systems employ specialized perceptual hash functions such as Microsoft's PhotoDNA or
-            Facebook's PDQ to produce a compact digest of an image file that can be approximately compared to a database
-            of known illicit-content digests. Recently, several proposals have suggested that hash-based matching
-            systems be incorporated into <em>client-side</em> and end-to-end encrypted (E2EE) systems: in these designs,
-            files that register as illicit content will be reported to the provider, while the remaining content will be
-            sent confidentially. By using perceptual hashing to determine confidentiality guarantees, this new setting
-            significantly changes the function of existing perceptual hashing - thus motivating the need to evaluate
-            these functions from an adversarial perspective, using their perceptual capabilities against them. For
-            example, an attacker may attempt to trigger a match on innocuous, but politically-charged, content in an
-            attempt to stifle speech.
-        </p>
-        <p>
-            In this work we develop threat models for perceptual hashing algorithms in an adversarial setting, and
-            present attacks against the two most widely deployed algorithms: PhotoDNA and PDQ. Our results show that it
-            is possible to efficiently generate <em>targeted second-preimage attacks</em> in which an attacker creates a
-            variant of some source image that matches some target digest. As a complement to this main result, we also
-            further investigate the production of images that facilitate <em>detection avoidance attacks</em>,
-            continuing a recent investigation of Jain et al. Our work shows that existing perceptual hash functions are
-            likely insufficiently robust to survive attacks on this new setting.
-        </p> -->
+            <h4 style="text-align: left; padding-top: 10px;">Client-Side Scanning</h4>
+            <p>
+                The simplest approach moves the scanning entirely onto the user's device. The app is provisioned
+                with the database of illicit content hashes. When a user prepares to send an image, the app
+                computes its hash locally and checks it against the database. Only if a match is found does it
+                alert the provider. When a detection happens, the image is blocked and transmitted to the server
+                for review.
+            </p>
+            <span class="figure">
+                <img src="images/client-side-scanning.svg" style="max-width: 820px; width: 100%;">
+                <div style="font-size: x-small; margin-top: 4px;">Client-side scanning: the app detects a match locally and reports directly to the provider, keeping the message stream encrypted end-to-end.</div>
+            </span>
+            <p>
+                The problem: the hash database — and potentially the neural network weights — now live on every
+                user's phone. A skilled reverse engineer can extract them. This opens up a range of attacks:
+            </p>
+            <ul>
+                <li><strong>Collision generation</strong> — craft a non-CSAM image whose hash collides with a
+                    known illicit hash, triggering a false detection. A bad actor could frame innocent users
+                    or suppress protected speech by manufacturing false positives.</li>
+                <li><strong>Detection avoidance</strong> — perturb a known illicit image so its hash no longer
+                    matches anything in the database, evading the filter entirely.</li>
+                <li><strong>Content reconstruction</strong> — attempt to recover the original illicit images
+                    from the hash database, or use the hashes to train a generative model to synthesize
+                    similar content. With the rise of image-generation AI, a leaked hash database could
+                    theoretically be used to guide a model toward producing illegal content. These are
+                    unacceptable consequences when dealing with something as serious as Child Sexual Abuse
+                    Material.</li>
+            </ul>
+            <p>
+                All of these potential impacts follow directly from a single root cause: giving the attacker
+                access to the hash function and database. In short, client-side scanning turns the content
+                moderation system against itself.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Edge Hashing</h4>
+            <p>
+                An alternative approach, exemplified by Microsoft's "Edge Hash" proposal, computes hashes at
+                the client and transmits them to the provider for comparison — without ever storing the illicit
+                database on-device. This preserves the secrecy of the database, but means the provider receives
+                a fingerprint of <em>every</em> image a user sends, creating a persistent surveillance channel
+                for all user content regardless of whether it is illicit. If the hash function leaks enough
+                information to classify image attributes — or if digests can be used to reconstruct image
+                content — this becomes a significant privacy concern well beyond CSAM detection.
+            </p>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>Two-Party Computation (2PC)</h3>
+            <p>
+                The most cryptographically sophisticated approach uses a <em>two-party computation</em> (2PC)
+                protocol to perform the hash comparison without either party revealing their secret inputs.
+                In this scheme, the client holds the image (and its hash), while the provider holds the database
+                of illicit hashes. Using a 2PC protocol — such as private set intersection (PSI) or homomorphic
+                encryption — they jointly determine whether there is a match, with neither side learning the
+                other's private data.
+            </p>
+            <span class="figure">
+                <img src="images/two-party-comp.svg" style="max-width: 820px; width: 100%;">
+                <div style="font-size: x-small; margin-top: 4px;">Two-party computation: the client holds the image and its hash; the provider holds the algorithm and hash database. Cryptography allows them to jointly determine a match without either side seeing the other's secret.</div>
+            </span>
+            <p>
+                A variant of this approach was prototyped by Apple for its iCloud Photos CSAM scanning system.
+                In theory, 2PC preserves both user privacy and the secrecy of the hash database. In practice,
+                however, 2PC does not solve the underlying problem: if an attacker can manipulate the hash
+                values themselves — by crafting collision images or evasion perturbations — the security
+                guarantees collapse. The 2PC protocol faithfully computes the comparison, but if the comparison
+                is based on a broken hash function, the output is meaningless. This is precisely the
+                vulnerability our work exposes.
+            </p>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>A Case Study: Apple's NeuralHash</h3>
+            <p>
+                Late in our research, Apple announced <strong>NeuralHash</strong>, a perceptual hash function
+                based on a standard convolutional neural network, intended for client-side CSAM scanning in
+                iCloud Photos. Because NeuralHash is end-to-end differentiable — it is, at its core, just a
+                neural network — standard adversarial machine learning techniques apply directly. Within days
+                of the announcement, the machine learning community had produced targeted hash collisions:
+                pairs of visually distinct images that NeuralHash considers identical.
+            </p>
+            <div class="pair" style="max-width: 500px; gap: 20px;">
+                <div class="figure">
+                    <img src="images/neuralhash-cat.png" style="width: 100%; border-radius: 4px;">
+                    <div style="font-size: x-small; margin-top: 4px;"><span class="fira">H(cat) = 59a34eabe31910abfb06f308...</span></div>
+                </div>
+                <div class="figure" style="display: flex; align-items: center; justify-content: center; font-size: 2em; flex: 0 0 auto; width: auto; padding: 0 8px;">
+                    =
+                </div>
+                <div class="figure">
+                    <img src="images/neuralhash-dog.png" style="width: 100%; border-radius: 4px;">
+                    <div style="font-size: x-small; margin-top: 4px;"><span class="fira">H(dog) = 59a34eabe31910abfb06f308...</span></div>
+                </div>
+            </div>
+            <p>
+                A cat and a dog — producing the identical NeuralHash digest. The collision was generated using
+                standard gradient-based adversarial ML techniques in a matter of minutes.
+                Apple indefinitely delayed the deployment of NeuralHash shortly after. This episode illustrated
+                a key principle: any perceptual hash function that is fully differentiable is trivially
+                vulnerable to adversarial attack. But it also raised a harder question — what about the hash
+                functions that had been quietly deployed in production for years?
+            </p>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>PhotoDNA and PDQ</h3>
+            <p>
+                The two most widely deployed perceptual hash functions are <strong>Microsoft's
+                PhotoDNA</strong> and <strong>Facebook's PDQ</strong>. Together they scan billions of images
+                per year across platforms including Facebook, Dropbox, and Cloudflare.
+            </p>
+            <p>
+                Unlike NeuralHash, neither PhotoDNA nor PDQ is a neural network. Both compute hashes through
+                a pipeline of classical image processing steps that are <em>non-differentiable</em>. Standard
+                gradient-based adversarial ML does not apply directly. Additionally, PhotoDNA's algorithm has
+                never been publicly released; Microsoft and NCMEC require cooperating organizations to sign
+                non-disclosure agreements to obtain even a binary implementation. For our experiments, we used
+                a binary copy extracted from forensic software published by other researchers, treating it
+                entirely as a black box — we have no access to its internal implementation, only the ability
+                to query it with an input image and observe the output digest.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Algorithm Internals</h4>
+            <p>
+                While PhotoDNA's internals are confidential, independent researchers have partially
+                reverse-engineered the pipeline. <strong>PhotoDNA</strong> processes an image through:
+                normalization and grayscale conversion; Sobel gradient edge detection to extract structural
+                features; partitioning the gradient image into a grid of blocks; and concatenating block
+                statistics into a 144-value numeric vector. Digests are compared via L1-norm distance, with
+                a baseline matching threshold of Δ<sub>d</sub>&thinsp;=&thinsp;1,800.
+            </p>
+            <p>
+                <strong>PDQ</strong> (Facebook's open-source alternative) operates through: two-pass Jarosz
+                blur filters for smoothing; computation of L1 norms of quantized gradients and rescaling; a
+                2D Discrete Cosine Transform (DCT) to capture frequency-domain features; and quantization
+                around the median to produce a compact 256-bit binary digest. PDQ digests are compared using
+                Hamming distance, with a baseline matching threshold of Δ<sub>d</sub>&thinsp;=&thinsp;90.
+            </p>
+            <p>
+                The figure below shows a blue jay from ImageNet alongside the visualized output digests of
+                both PhotoDNA (center) and PDQ (right). Although the connection between input and digest is
+                not visually obvious, the digests are derived directly from the pixel content via edge
+                detection and frequency-domain transforms.
+            </p>
+            <span class="figure">
+                <img src="images/phf-digest-visualization.png" style="max-width: 700px;">
+                <div style="font-size: x-small; margin-top: 4px;">An ImageNet image (left) alongside visualizations of its PhotoDNA digest (center, 144 values) and PDQ digest (right, 256 bits). Figure 2 from the paper.</div>
+            </span>
+            <p>
+                Like all perceptual hash functions, PhotoDNA and PDQ are designed to be <em>locality
+                sensitive</em>: small changes to an image produce small changes to the digest. The figure
+                below demonstrates this: a yellow star placed over the bird's face barely perturbs either
+                digest, because the occlusion does not change the image's dominant structural features.
+            </p>
+            <div class="pair" style="max-width: 600px; align-items: center;">
+                <div class="figure">
+                    <img src="images/phf-digest-visualization.png" style="width: 100%;">
+                    <div style="font-size: x-small; margin-top: 4px;">Original image + digests</div>
+                </div>
+                <div class="figure" style="flex: 0 0 auto; width: auto; padding: 0 12px; font-size: 1.5em;">→</div>
+                <div class="figure" style="max-width: 200px;">
+                    <img src="images/bluejay-star.png" style="width: 100%;">
+                    <div style="font-size: x-small; margin-top: 4px;">Occluded: hash changes minimally</div>
+                </div>
+            </div>
+            <p>
+                The crucial difference between these algorithms and NeuralHash is that they are not neural
+                networks and are non-differentiable — meaning we cannot directly access any gradients when
+                running adversarial attacks. This makes the standard adversarial ML toolkit inapplicable
+                and requires an entirely different approach. So the question becomes: given that NeuralHash
+                was broken in days using off-the-shelf gradient methods, can we break PhotoDNA and PDQ
+                without access to any gradients at all?
+            </p>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>Attacking PhotoDNA and PDQ</h3>
+            <p>
+                Because PhotoDNA and PDQ are non-differentiable (and PhotoDNA is a black box), we developed
+                a <strong>hash-function-agnostic gradient estimation framework</strong> using Monte Carlo
+                sampling. The key insight: even without a closed-form gradient, we can <em>approximate</em>
+                one by repeatedly querying the hash function with small random perturbations and measuring
+                how each perturbation shifts the hash distance to our target.
+            </p>
+            <p>
+                At each step, we take our current candidate image and sample a set of small random perturbations
+                around it (50 per step in our implementation). For each perturbation, we compute the change
+                in hash distance to the target. We then take a weighted average of all perturbations,
+                weighted by their effect on the distance, as our gradient estimate and step in that direction.
+                This process treats the hash function as a complete black box — we only need to be able to
+                query it with an image and receive a digest in return.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Attack 1: Targeted Second-Preimage</h4>
+            <p>
+                In the <strong>targeted second-preimage attack</strong>, we are given only a <em>target hash
+                digest</em> D — not the original image — and a <em>source image</em> S. Our goal is to
+                iteratively perturb S until its hash collides with D, producing a new image that the hash
+                system considers identical to the unknown target. Critically, in a real-world scenario, an
+                attacker only needs access to the hash database — they do not need the original illicit
+                image at all. The hash digest alone is sufficient to mount the attack.
+            </p>
+            <p>
+                In the E2EE threat model this enables several attacks. For example: an attacker with
+                access to the hash database crafts an innocuous-looking image whose hash matches a known
+                illicit digest, then sends it to a target user. When that user forwards the image through
+                an E2EE-PHM system, they are falsely flagged — enabling surveillance, user framing, or
+                censorship of legitimate speech.
+            </p>
+            <span class="figure">
+                <img src="images/hop-skip-jump-collision.svg" style="max-width: 820px; width: 100%;">
+                <div style="font-size: x-small; margin-top: 4px;">The attack in hash space. At each step, 50 random perturbations are sampled around the current image (thin arrows). The gradient estimate (red arrow) points toward the target digest H(T)=D. The image is stepped in that direction and the process repeats until the hash falls within the match threshold (dashed circle).</div>
+            </span>
+            <div class="pair" style="max-width: 820px;">
+                <div class="figure">
+                    <img src="images/phd-attack-progression.png" style="width: 100%;">
+                    <div style="font-size: x-small; margin-top: 4px;">PhotoDNA targeted second-preimage progression. A source image (a plant) is iteratively perturbed to collide with the hash of a target (a bicycle). Each column shows the attack image (top) and its PhotoDNA hash visualization (bottom) at increasing iterations. By step 20,000 the hash distance has reached 342 — well below the baseline threshold of 1,800.</div>
+                </div>
+                <div class="figure">
+                    <img src="images/pdq-attack-progression.png" style="width: 100%;">
+                    <div style="font-size: x-small; margin-top: 4px;">PDQ targeted second-preimage progression. A blue jay is perturbed to match the hash of a man on a beach. Because PDQ's 256-bit digest is roughly one-fifth the size of PhotoDNA's 144-value vector, each perturbation step has a coarser effect — resulting in noticeably more visual noise at the collision threshold.</div>
+                </div>
+            </div>
+
+            <h4 style="text-align: left; padding-top: 10px;">Attack 2: Detection Avoidance</h4>
+            <p>
+                The <strong>detection avoidance attack</strong> is the inverse: given an image that
+                <em>would</em> be flagged by the hash system, we produce a visually identical version
+                whose hash falls outside the detection threshold. We adapt the
+                <a href="https://arxiv.org/abs/1904.02144">HopSkipJump</a> adversarial framework
+                (Chen et al., 2020) to this setting.
+            </p>
+            <p>
+                The algorithm works by finding and walking along the hash function's <em>decision boundary</em>
+                — the line in image space between "match" and "no match." We start from a random image that
+                does not collide with the target, then:
+            </p>
+            <span class="figure">
+                <img src="images/detection-avoidance.svg" style="max-width: 820px; width: 100%;">
+                <div style="font-size: x-small; margin-top: 4px;">The HopSkipJump-based detection avoidance attack in hash space. Points on the dashed decision boundary (the match threshold H(T)=D) are sampled via random perturbations (thin arrows); the gradient estimate (red arrows) points along the boundary toward images with less visual noise. Each step moves the attack image along the boundary while staying outside the detection threshold.</div>
+            </span>
+            <ol style="max-width: 820px; text-align: left; margin-bottom: 1em;">
+                <li style="margin-bottom: 0.4em;">Find the point on the line between our non-colliding image
+                    and the target where the hash status switches — this is the decision boundary.</li>
+                <li style="margin-bottom: 0.4em;">At that boundary point, generate random perturbations and
+                    use them to compute a gradient estimate, as in Attack 1.</li>
+                <li style="margin-bottom: 0.4em;">Take a step in the gradient direction, moving the boundary
+                    point toward images with less visual noise while staying outside the hash match
+                    threshold.</li>
+                <li style="margin-bottom: 0.4em;">Repeat until convergence.</li>
+            </ol>
+            <p>
+                The result is a perturbed image that remains visually equivalent to the original but whose
+                hash is no longer recognized by any matching system — and because neither the hash nor the
+                image matches, further dissemination of the avoidant image by others will also go
+                undetected.
+            </p>
+            <span class="figure">
+                <img src="images/detection-avoidance-sailboat.png" style="max-width: 700px;">
+                <div style="font-size: x-small; margin-top: 4px;">Detection avoidance attack on PhotoDNA. Left: original image. Center: perturbed image at the baseline detection threshold (Δ<sub>d</sub> = 1,800) — the image is barely altered. Right: perturbed image at twice the baseline (Δ<sub>d</sub> = 4,000) — still visually intact. Both evade PhotoDNA detection entirely.</div>
+            </span>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>Results</h3>
+            <p>
+                Before presenting the quantitative results, consider a question posed during the talk:
+            </p>
+            <p style="text-align: center; font-style: italic; text-indent: 0;">
+                Which pair of images below would you consider a "match"?
+            </p>
+            <span class="figure">
+                <img src="images/phd-attack-progression.png" style="max-width: 700px;">
+                <div style="font-size: x-small; margin-top: 4px;">Columns (a)–(d) are the same source plant at increasing attack iterations. Column (e) is the target (a bicycle rider). The number below each column is the current L1 hash distance to the target. Which pair looks like a "match" to you?</div>
+            </span>
+            <p>
+                Most people — quite reasonably — would identify images (a) through (d), all showing the same
+                plant against a garden wall, as matches with each other. The bicycle rider looks completely
+                different. But according to PhotoDNA, the image in column (d) — after 20,000 iterations of
+                adversarial perturbation — is a <em>match</em> with the bicycle. Its hash distance of 342 is
+                well below the baseline threshold of 1,800 used in production deployments. The two plants you
+                would call a match? PhotoDNA disagrees.
+            </p>
+            <p>
+                We ran the targeted second-preimage attack against 30 randomly selected image pairs from the
+                ImageNet validation set.
+            </p>
+            <p>
+                For <strong>PhotoDNA</strong>, 17 of 30 image pairs reached the baseline collision threshold
+                (Δ<sub>d</sub> = 1,800) within 20,000 iterations, with a minimum achieved distance of 342.
+                Every pair eventually achieved a perfect collision given more iterations — the attack converges
+                universally, it just takes longer for harder pairs.
+            </p>
+            <span class="figure">
+                <img src="images/phd-attack-chart.png" style="max-width: 700px;">
+                <div style="font-size: x-small; margin-top: 4px;">PhotoDNA attack progression for all 30 image pairs. The dashed blue line marks the baseline match threshold (Δ<sub>d</sub> = 1,800). Many pairs cross the threshold well within 20,000 iterations.</div>
+            </span>
+            <p>
+                For <strong>PDQ</strong>, all 30 of 30 image pairs reached the baseline threshold
+                (Δ<sub>d</sub> = 90), typically within 3 hours and 600–6,000 iterations. PDQ is in this
+                sense more vulnerable than PhotoDNA — the attack succeeds on every pair without exception.
+                However, as visible in the bluejay-to-old-man progression shown earlier, PDQ attacks produce
+                noticeably more visual noise. This is because PDQ's digest is roughly one-fifth the size of
+                PhotoDNA's (256 bits vs. 144 numeric values), so each pixel change has a coarser effect on
+                the hash, causing the attack to overshoot and take larger steps. By step 1,600 the hash
+                distance reaches zero — a perfect collision — while the source image still retains
+                recognizable structure.
+            </p>
+            <span class="figure">
+                <img src="images/pdq-attack-chart.png" style="max-width: 700px;">
+                <div style="font-size: x-small; margin-top: 4px;">PDQ attack progression for all 30 image pairs. The dashed blue line marks the baseline match threshold (Δ<sub>d</sub> = 90). All 30 pairs converge.</div>
+            </span>
+            <p>
+                The animations below show the attack progression in real time. As adversarial perturbations
+                accumulate, the source image's hash visualization gradually transforms to match the target
+                — while the image itself remains visually recognizable. The left panel shows the source image
+                and its evolving hash; the right panel shows the fixed target image and its hash.
+            </p>
             <hr style="max-width: 820px;">
-            <h4>
-                Below you can find two gifs showing the progress of our attack over time when utilizing PhotoDNA or PDQ
-                as
-                the target perceptual hash function. Attack progression is shown on the left and the target image & its
-                hash
-                is shown on the right.
-            </h4>
             PhotoDNA
             <div class="pair">
                 <div class="figure">
@@ -190,24 +536,188 @@
                     <embed src="./images/pdq_4.4_1_hash_tgt.png" width="100%" height="100%" />
                 </div>
             </div>
+
+            <!-- ============================================================ -->
             <hr>
-            <h3 id="gslides">USENIX Slides (there are speaker notes!)</h3><iframe
+            <h3>Threat Models</h3>
+            <p>
+                Our paper formalizes a taxonomy of attacks on E2EE-PHM systems. Beyond the technical
+                demonstrations, it is worth being explicit about the concrete threat scenarios each attack
+                enables.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Targeted-Collision Surveillance</h4>
+            <p>
+                An attacker — which could be a nefarious service provider, a state actor with access to the
+                hash corpus, or an insider threat — uses the targeted second-preimage attack to craft an
+                innocuous image whose hash collides with a known illicit digest.
+            </p>
+            <p>
+                This image can be posted publicly or sent directly to a target user. That user, without any
+                knowledge of the attack, forwards it to someone else through an E2EE-PHM system. The system
+                detects a hash match and flags the user — all based on an image they had no reason to
+                suspect was malicious. A sufficiently resourceful attacker could even submit the crafted
+                image to NCMEC's corpus directly: once added to the hash database, any user who sends it
+                (perhaps a politically charged photograph or protected speech) will be flagged system-wide.
+                This enables targeted deanonymization of users — striking at the core privacy guarantee of
+                E2EE messaging.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Detection Avoidance and Dissemination</h4>
+            <p>
+                A bad actor possessing illicit content uses our detection avoidance attack to produce a
+                perturbed version whose hash falls outside the detection threshold. This image can then
+                be freely distributed through E2EE-PHM systems without triggering any alerts. Crucially,
+                once an evasion image is generated and disseminated, it continues to evade detection even
+                when forwarded by other users — neither the image nor its hash matches anything in the
+                database. The evasion is persistent and network-wide.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">User Data Leakage via Edge Hashing</h4>
+            <p>
+                In edge-hashing E2EE-PHM systems, the hash of every image a user sends is transmitted to
+                the provider. Even without seeing the image itself, the provider can attempt to recover
+                information about its content from the digest. Two leakage vectors are possible:
+            </p>
+            <ul>
+                <li><strong>Preimage attribute recovery</strong> — train a classifier to predict image
+                    attributes (e.g., is it outdoors? does it contain a face?) directly from the hash
+                    digest. Our preliminary experiments showed that classification accuracy on PHF digests
+                    can approach that of classifying on raw images in some settings, meaning the digest
+                    is far from information-free.</li>
+                <li><strong>Preimage reconstruction</strong> — use a conditional GAN (such as pix2pix)
+                    to reconstruct an approximation of the source image directly from its hash
+                    visualization. While reconstruction quality is imperfect, the result demonstrates
+                    that perceptual hash digests encode meaningful visual information about the source.</li>
+            </ul>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>2026 Updates</h3>
+            <p>
+                The policy and research landscape around perceptual hashing has shifted considerably since
+                this work was published at USENIX Security 2023. Here is a summary of notable developments.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Apple Officially Abandons NeuralHash</h4>
+            <p>
+                In December 2022, Apple confirmed it had permanently cancelled its CSAM scanning system —
+                going beyond the "indefinite delay" language used at the time of publication. In Apple's own
+                words, the system would inject "the potential for a slippery slope of unintended
+                consequences. Scanning for one type of content, for instance, opens the door for bulk
+                surveillance and could create a desire to search other encrypted messaging systems across
+                content types." Apple simultaneously expanded iCloud's end-to-end encryption to cover
+                most user data, including Photos.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Meta Enables Default E2EE on Facebook Messenger</h4>
+            <p>
+                In December 2023, Meta rolled out default end-to-end encryption for all personal chats and
+                calls on Messenger and Facebook, built on the Signal Protocol and Meta's own Labyrinth
+                Protocol. This is directly relevant to the paper's threat model, which uses Facebook
+                Messenger as its motivating example — Meta went ahead with E2EE despite the 2019 Barr
+                letter and sustained government pressure. Group Messenger chats remain opt-in for E2EE.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">EU Chat Control: Ongoing and Unresolved</h4>
+            <p>
+                The EU's "Chat Control" proposal — which would have mandated client-side CSAM scanning
+                across messaging platforms including E2EE apps — has had a turbulent trajectory. Chat
+                Control 1.0, which provided a voluntary legal basis for platforms to scan private messages,
+                expired on April 3, 2026 after the European Parliament voted to reject further extensions.
+                Despite losing the legal basis, Google, Meta, Microsoft, and Snap announced they would
+                continue voluntary scanning regardless.
+            </p>
+            <p>
+                The permanent replacement, Chat Control 2.0 (formally the CSAR regulation), remains under
+                negotiation as of April 2026, with trilogue discussions resuming in May and a political
+                deal targeted for July. Critically, the most controversial element — mandatory scanning
+                of end-to-end encrypted messages — was dropped from the proposal. The current draft instead
+                allows messaging services to voluntarily install monitoring software and refocuses on
+                age verification and risk-mitigation measures.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">UK Online Safety Act</h4>
+            <p>
+                The UK Online Safety Act, passed in September 2023 and in force as of early 2024, takes a
+                different approach. It legally requires a wider range of platforms to use hash matching for
+                known CSAM. Its Section 121 — nicknamed the "Spy Clause" by digital rights groups —
+                empowers Ofcom to direct messaging platforms to use "accredited technology" to scan
+                end-to-end encrypted messages for CSAM. As of early 2026, no such accredited technologies
+                have been designated; Ofcom's final guidance is expected by autumn 2026. Apple, Signal,
+                and WhatsApp have all reiterated that they would rather withdraw from the UK market than
+                compromise E2EE for their users.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">The AI-Generated CSAM Problem</h4>
+            <p>
+                Perhaps the most significant development for the technical landscape of content scanning
+                is the explosion of AI-generated CSAM. The NCMEC CyberTipline recorded a 1,325% increase
+                in reports involving generative AI in 2024 alone — from roughly 4,700 reports in 2023 to
+                over 67,000. The Internet Watch Foundation documented a 260-fold increase in AI-generated
+                CSAM videos in 2025. Because this content is synthetic, it by definition has no entry in
+                any hash database. This creates a fundamental gap in hash-based detection systems: a
+                growing category of illegal material is completely invisible to perceptual hash matching,
+                reinforcing the need for classifier-based approaches alongside — and potentially instead
+                of — PHF-based systems.
+            </p>
+
+            <h4 style="text-align: left; padding-top: 10px;">Follow-On Research</h4>
+            <p>
+                Our paper has spurred a thread of follow-on work examining the security of perceptual hash
+                functions from multiple angles:
+            </p>
+            <ul>
+                <li>
+                    <strong>Hash inversion attacks</strong> — A December 2024 preprint demonstrated the
+                    first known inversion attacks against Apple's NeuralHash and Facebook's PDQ using
+                    generative AI, obtained with minimal computational resources. This is relevant to the
+                    edge-hashing threat model described in our work: if digests can be inverted to
+                    approximate the source image, the privacy implications for systems that transmit
+                    hashes to a provider are severe.
+                    (<a href="https://arxiv.org/html/2412.06056v1">arxiv:2412.06056</a>)
+                </li>
+                <li>
+                    <strong>Robustness re-evaluation</strong> — A June 2024 paper assessed PhotoDNA, PDQ,
+                    and NeuralHash against hash-evasion and hash-inversion attacks and reported that these
+                    algorithms demonstrate "significant robustness" in some experimental settings — a
+                    finding that is in tension with our work and others, and reflects ongoing debate in the
+                    community about what threat models and attack budgets are realistic.
+                    (<a href="https://arxiv.org/abs/2406.00918">arxiv:2406.00918</a>)
+                </li>
+                <li>
+                    <strong>DINOHash — adversarially robust PHF</strong> — Researchers have proposed
+                    DINOHash, the first perceptual hashing model to incorporate adversarial training,
+                    derived from the DINOv2 self-supervised vision transformer. DINOHash reports
+                    substantially higher robustness against gradient-based adversarial attacks than
+                    NeuralHash or classical DCT-based schemes, and improves average bit accuracy by 12%
+                    over prior state-of-the-art. This represents the most promising direction to date
+                    toward a PHF that could withstand the attacks described in our paper, though
+                    real-world deployment and independent evaluation at scale remain open questions.
+                    (<a href="https://openreview.net/forum?id=HrGa8Mq2NE">OpenReview: DINOHash</a>)
+                </li>
+            </ul>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3 id="gslides">USENIX Slides (there are speaker notes!)</h3>
+            <iframe
                 src="https://docs.google.com/presentation/d/e/2PACX-1vTM2IcZFNies45h73hyJYjQ65Ae7ZhCCjcpHbZTIgz8oVvDRwH74hKyTLywbz-g_ss0QCNc9cYDYYJd/embed?start=false&loop=false&delayms=5000"
                 frameborder="0" width="1440" height="839" allowfullscreen="true" mozallowfullscreen="true"
                 webkitallowfullscreen="true"></iframe>
+
+            <!-- ============================================================ -->
             <hr>
             <h4>
-                The following figures are pulled from our USENIX submission. These will be included in the soon to come
-                ePrint update.
+                The following figures are pulled from our USENIX submission.
             </h4>
             <h5>
-                Figure 1 shows the results of our <em>targeted second-preimage attack</em> at both low and high
-                threshold
-                levels. Figure 2 shows our <em>detection avoidance attack</em> at the baseline collision threshold as
-                well
-                as at a significantly higher threshold. Figures 3 & 4 show the progress of our targeted second-preimage
-                attack as the collision threshold is lowered. Figures 5 & 6 show a comparison of the performance of this
-                attack using various gradient optimization methods.
+                Figure 1 shows the results of our <em>targeted second-preimage attack</em> at both low and
+                high threshold levels. Figure 2 shows our <em>detection avoidance attack</em> at the baseline
+                collision threshold as well as at a significantly higher threshold. Figures 3 &amp; 4 show the
+                progress of our targeted second-preimage attack as the collision threshold is lowered.
+                Figures 5 &amp; 6 show a comparison of the performance of this attack using various gradient
+                optimization methods.
             </h5>
             <div class="content" id="figures">
                 <div class="pair">
@@ -235,6 +745,63 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ============================================================ -->
+            <hr>
+            <h3>Why This Matters</h3>
+            <p>
+                Our results demonstrate that PhotoDNA and PDQ — the two most widely deployed perceptual hash
+                functions — are vulnerable to machine learning-based adversarial attacks. This is not merely
+                an academic finding. In the context of E2EE-PHM systems, these vulnerabilities translate to
+                concrete real-world threats:
+            </p>
+            <ul>
+                <li><strong>Surveillance.</strong> An attacker with access to a hash database can craft
+                    innocuous-looking images that trigger false positives, deanonymizing users who forward
+                    the image through an E2EE system.</li>
+                <li><strong>Framing and censorship.</strong> A malicious actor — including a compromised
+                    service provider or a state-sponsored attacker — can cause a politically charged or
+                    otherwise protected image to be flagged as illicit, silencing its distribution without
+                    any legitimate basis.</li>
+                <li><strong>Detection evasion.</strong> Illicit content can be subtly perturbed to evade
+                    any hash-based filter, rendering the entire scanning system ineffective against a
+                    sufficiently motivated adversary.</li>
+            </ul>
+            <p>
+                The fundamental issue is that perceptual hash functions were never designed to be
+                adversarially robust. Their specification documents say as much explicitly. In traditional
+                server-side deployments, this was an acceptable limitation: providers could perform human
+                review of flagged content, the hash database was tightly controlled, and the plaintext
+                image was always available to verify matches. None of these safeguards exist in an E2EE
+                setting. Hash-based matching is woven directly into the encryption mechanism, and the
+                confidentiality of every licit message depends on the security properties of the underlying
+                hash function.
+            </p>
+            <p>
+                By demonstrating that PhotoDNA and PDQ are not secure against adversarial attack, we show
+                that <em>existing perceptual hash functions are likely insufficiently robust to be deployed
+                in E2EE content scanning systems.</em> While it is still important to have mechanisms in
+                place to perform illicit content monitoring, utilizing PHFs within an end-to-end encrypted
+                setting breaks the security guarantees provided by that encryption, and in some cases could
+                provide a side-channel to leak incredibly sensitive data. The debate around client-side
+                scanning is ongoing — in 2022 the EU Commission formally proposed mandating CSAM scanning
+                in messaging applications, raising questions about whether this requirement would extend to
+                E2EE apps. Our work provides the technical evidence that should inform that debate.
+            </p>
+            <p>
+                We disclosed our results to both Microsoft and Facebook prior to publication. In the interest
+                of responsible disclosure, we do not release our full attack code publicly. Our results were
+                independently validated through USENIX's artifact review process, earning both the
+                <em>Functional</em> and <em>Reproduced</em> artifact evaluation badges — confirming that
+                the attacks described in the paper are real and reproducible. The paper linked above contains
+                full technical details, and we are available to discuss our methodology with researchers
+                and policymakers.
+            </p>
+            <span class="figure">
+                <img src="images/artifact-badges.png" style="max-width: 300px;">
+                <div style="font-size: x-small; margin-top: 4px;">USENIX Security '23 Artifact Evaluation — Functional and Reproduced badges awarded.</div>
+            </span>
+            <hr style="max-width: 820px;">
     </div>
 </body>
 
